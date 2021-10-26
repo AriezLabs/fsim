@@ -1,0 +1,8 @@
+id1: i
+  a id2
+  b id1
+
+id2: a
+  a id1
+  b id2
+
