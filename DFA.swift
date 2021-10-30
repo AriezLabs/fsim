@@ -141,6 +141,6 @@ Log.note("parsed \(dfa)")
 
 for i in 2..<CommandLine.arguments.count {
     let word = CommandLine.arguments[i]
-    print(dfa.process(word) ? "\(word)\t is in L(M)" : "\(word)\t is not in L(M)")
+    print(dfa.process(word) ? "\(word)" : "\(word)\tL(M)")
 }
 
