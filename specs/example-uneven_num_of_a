@@ -1,3 +1,5 @@
+./DFA $0 $@; exit # makes this executable
+
 id1: i
   a id2
   b id1

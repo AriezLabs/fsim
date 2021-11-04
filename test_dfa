@@ -1,7 +1,10 @@
-q0
+./DFA $0 $@; exit
 
-q0:
-  a q1
+id1: i
+  a id2
+  b id1
 
-q1:
-  a q0
+id2: a
+  a id1
+  b id2
+

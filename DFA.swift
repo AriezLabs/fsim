@@ -15,19 +15,25 @@ class Log {
             print("note:", description)
         }
     }
+
+    static func debug(_ description: String) {
+        if logLevel >= 2 {
+            print("debug:", description)
+        }
+    }
 }
 
 class Parser {
     static func parse(file: String) -> DFA {
         let spec = try! String(contentsOfFile: file)
         let lines = spec.components(separatedBy: "\n")
-        
+
         var currentState: State? // state being parsed rn
         var states = [State]()
         var acceptingStates = [State]()
         var initialState: State?
-        
-        for i in 0..<lines.count-1 {
+
+        for i in 1..<lines.count-1 {
             let currentLine = lines[i].trimmingCharacters(in: .whitespaces)
             let isToplevel = currentLine.contains(":")
             let tokens = currentLine.components(separatedBy: " ")
@@ -100,15 +106,14 @@ class DFA: CustomStringConvertible {
     func process(_ input: String) -> Bool {
         reset()
         for char in input {
-            if let targetId = currentState.transitions[char], 
-               let targetIndex = states.firstIndex(where: {$0.id == targetId}) {
-                    currentState = states[targetIndex]
-
-                } else {
+            if let targetId = currentState.transitions[char], let targetIndex = states.firstIndex(where: {$0.id == targetId}) {
+                currentState = states[targetIndex]
+            } else {
                 Log.note("missing transition on '\(char)' from state \(currentState.id)")
                 return false
             }
         }
+        Log.debug("ended in state \(currentState)")
         return acceptingStates.contains(where: {$0.id == currentState.id})
     }
 }
@@ -137,10 +142,10 @@ Log.errorChk(CommandLine.arguments.count < 2, "usage: \(CommandLine.arguments[0]
 let f = CommandLine.arguments[1]
 let dfa = Parser.parse(file: f)
 
-Log.note("parsed \(dfa)")
+Log.debug("parsed \(dfa)")
 
 for i in 2..<CommandLine.arguments.count {
     let word = CommandLine.arguments[i]
-    print(dfa.process(word) ? "\(word)" : "\(word)\tL(M)")
+    print(dfa.process(word) ? "\(word)\tL(M)" : "\(word)")
 }
 

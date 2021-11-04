@@ -1,2 +1,2 @@
 default:
-	swiftc DFA.swift && ./DFA test_dfa
+	swiftc DFA.swift
