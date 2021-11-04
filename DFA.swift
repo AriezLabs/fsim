@@ -3,11 +3,15 @@ import Foundation
 class Log {
     static var logLevel = 0
 
-    static func errorChk(_ condition: Bool, _ description: String) {
+    static func checkFatal(_ condition: Bool, _ description: String) {
         if condition {
-            print("error:", description)
-            exit(1)
+            fatal(description)
         }
+    }
+
+    static func fatal(_ description: String) {
+        print("fatal error:", description)
+        exit(1)
     }
 
     static func note(_ description: String) {
@@ -24,7 +28,7 @@ class Log {
 }
 
 class Parser {
-    static func parse(file: String) -> DFA {
+    static func parse(file: String) -> DFA? {
         let spec = try! String(contentsOfFile: file)
         let lines = spec.components(separatedBy: "\n")
 
@@ -33,17 +37,28 @@ class Parser {
         var acceptingStates = [State]()
         var initialState: State?
 
-        for i in 1..<lines.count-1 {
+        var beginIndex: Int = 0
+
+        if let firstLine = lines.first {
+            if firstLine.starts(with: "#!") {
+                beginIndex = 2
+            }
+        } else {
+            return nil
+        }
+
+        for i in beginIndex..<lines.count-1 {
             let currentLine = lines[i].trimmingCharacters(in: .whitespaces)
-            let isToplevel = currentLine.contains(":")
             let tokens = currentLine.components(separatedBy: " ")
 
-            if currentLine.isEmpty {
-                continue
-            }
+            let isToplevel = lines[i].first != " "
+            let isComment = currentLine.starts(with: "#")
 
-            if isToplevel {
-                let stateId = tokens.first!.dropLast()
+            if currentLine.isEmpty || isComment {
+                continue
+
+            } else if isToplevel {
+                let stateId = tokens.first!
                 currentState = State(id: String(stateId))
                 states.append(currentState!)
 
@@ -52,18 +67,18 @@ class Parser {
                 }
 
                 if tokens.contains("i") {
-                    Log.errorChk(initialState != nil, "initial state must be unique")
+                    Log.checkFatal(initialState != nil, "initial state must be unique")
                     initialState = currentState!
                 }
 
             } else {
-                let char = Character(tokens.first!)
+                let symbol = String(tokens.first!)
                 let targetId = tokens.last!
-                currentState?.addTransition(on: char, to: targetId)
+                currentState!.addTransition(on: symbol, to: targetId)
             }
         }
 
-        Log.errorChk(initialState == nil, "initial state must be defined")
+        Log.checkFatal(initialState == nil, "initial state must be defined")
 
         return DFA(states: states, acceptingStates: acceptingStates, initialState: initialState!)
     }
@@ -88,14 +103,6 @@ class DFA: CustomStringConvertible {
         s += "\tinitial state: \(initialState)\n"
         s += "\taccepting states: \(acceptingStates)\n"
         s += "\ttransitions:\n"
-        var alphabet = Set<Character>()
-        for state in states {
-            for transition in state.transitions {
-                s += "\t\t\(state.id) -\(transition.key)-> \(transition.value)\n"
-                alphabet.insert(transition.key)
-            }
-        }
-        s += "\talphabet: \(alphabet)\n"
         return s
     }
 
@@ -103,24 +110,25 @@ class DFA: CustomStringConvertible {
         self.currentState = initialState
     }
 
-    func process(_ input: String) -> Bool {
+    func process(_ input: [String]) -> Bool {
         reset()
-        for char in input {
-            if let targetId = currentState.transitions[char], let targetIndex = states.firstIndex(where: {$0.id == targetId}) {
+        for symbol in input {
+            if let targetId = currentState.transitions[symbol], let targetIndex = states.firstIndex(where: {$0.id == targetId}) {
                 currentState = states[targetIndex]
+                Log.debug("\(symbol) -> \(currentState)")
             } else {
-                Log.note("missing transition on '\(char)' from state \(currentState.id)")
+                Log.fatal("missing transition on symbol '\(symbol)' from state '\(currentState.id)'")
                 return false
             }
         }
-        Log.debug("ended in state \(currentState)")
+        Log.note("ended in state \(currentState)")
         return acceptingStates.contains(where: {$0.id == currentState.id})
     }
 }
 
 class State: Identifiable, CustomStringConvertible {
     var id: String
-    var transitions = [Character:String]()
+    var transitions = [String:String]()
 
     init(id: String) {
         self.id = id
@@ -130,22 +138,28 @@ class State: Identifiable, CustomStringConvertible {
         return id
     }
 
-    func addTransition(on char: Character, to state: String) {
-        transitions[char] = state
+    func addTransition(on symbol: String, to state: String) {
+        transitions[symbol] = state
     }
 }
 
 
-
-Log.errorChk(CommandLine.arguments.count < 2, "usage: \(CommandLine.arguments[0]) dfa_spec [ word ]")
+Log.checkFatal(CommandLine.arguments.count < 2, "usage: \(CommandLine.arguments[0]) dfa_spec [ word ]")
 
 let f = CommandLine.arguments[1]
-let dfa = Parser.parse(file: f)
 
-Log.debug("parsed \(dfa)")
+if let dfa = Parser.parse(file: f) {
+    Log.debug("parsed \(dfa)")
 
-for i in 2..<CommandLine.arguments.count {
-    let word = CommandLine.arguments[i]
-    print(dfa.process(word) ? "\(word)\tL(M)" : "\(word)")
+    var word = [String]()
+    for i in 2..<CommandLine.arguments.count {
+        word.append(CommandLine.arguments[i])
+    }
+
+    print(dfa.process(word) ? "accept" : "reject")
+
+} else {
+    Log.fatal("could not parse \(f)")
 }
+
 

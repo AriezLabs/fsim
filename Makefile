@@ -1,2 +1,2 @@
 default:
-	swiftc DFA.swift
+	swiftc -g DFA.swift
