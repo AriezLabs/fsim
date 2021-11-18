@@ -3,42 +3,43 @@
 Implements automata in Swift.
 
 
-## DFA specification syntax
+## Specification syntax
 
-For example, a DFA that accepts an uneven number of `a`s:
+A state is specified as follows:
 
 ```
-#!/bin/bash
-./DFA $0 $@; exit 
-
-# the two initial lines make this file executable
-# (they're optional - if the file starts with a bang, the parser will ignore the first two lines)
-
-# this defines a state - transitions are defined below
-# i marks the initial state
-initial i
-  a accept
-
-# a marks accepting states
-accept a
-  a initial
+stateId [ i ] [ a ]
+  symbol targetId
 ```
+
+* The first line specifies the state ID and special properties of the state.
+* `i` marks the initial state, `a` marks accepting states
+* Following indented lines specify transitions from `symbol` to `targetId`.
+* Symbols may be sequences of any Unicode characters except spaces.
+
+A full DFA specification is simply any sequence of state specifications. The alphabet is inferred to be all of the symbols that appear in at least one state specification.
 
 
 ## Running
 
-Words are passed with each symbol separated with a space.
+Words are passed with each symbol separated by a space.
 
 ```
 $ make
 $ ./DFA uneven_num_of_as a a a a
 ```
 
-If the spec includes the bang, we can simpy run it like:
+The parser will ignore the first two lines of the file if they start with a bang. Prepend the following header to your spec:
 
 ```
-$ ./uneven_num_of_as a a a a
+#!/bin/bash
+./DFA $0 $@; exit 
 ```
 
-Note that the `DFA` binary must be in the same directory.
+Now the spec is runnable directly: 
+
+```
+chmod +x spec
+./spec 00 01 10 11
+```
 

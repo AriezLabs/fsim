@@ -1,0 +1,11 @@
+#!/bin/bash
+./DFA $0 $@; exit 
+
+initial i
+  0 accept
+  1 initial
+
+accept a
+  0 initial
+  1 accept
+
