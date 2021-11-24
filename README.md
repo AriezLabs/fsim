@@ -47,8 +47,8 @@ Words are passed as sequences of space-separated symbols.
 
 ```
 $ make
-$ ./fsim odd_number_of_zeroes 0 0 1 1 1 0
-accept
+$ ./fsim odd_number_of_zeroes 0 0
+reject
 ```
 
 For convenience, the parser will ignore the first two lines of the specification file if they start with a bang. Prepend the following header to your spec:
@@ -61,7 +61,8 @@ For convenience, the parser will ignore the first two lines of the specification
 Now the spec is runnable directly: 
 
 ```
-chmod +x spec
-./spec 00 01 10 11
+$ chmod +x spec
+$ ./parallel_nfa 0 0
+accept
 ```
 
