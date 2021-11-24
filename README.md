@@ -1,6 +1,6 @@
 # fsim
 
-An implementation of a DFA in Swift. Automata are specified in a simple DSL explained below.
+A finite automata simulator in Swift. Automata are specified in a simple DSL explained below.
 
 
 ## Specification syntax
@@ -19,6 +19,8 @@ stateId [ i ] [ a ]
 
 A full DFA specification is simply any sequence of state specifications. The alphabet is inferred to be all of the symbols that appear in at least one state specification. It is not a requirement that all states have a transition defined for every symbol in the alphabet.
 
+For an example, see `odd_number_of_zeroes`.
+
 
 ## Running
 
@@ -26,7 +28,7 @@ Words are passed with each symbol separated by a space.
 
 ```
 $ make
-$ ./DFA odd_number_of_zeroes 0 0 1 1 1 0
+$ ./fsim odd_number_of_zeroes 0 0 1 1 1 0
 accept
 ```
 
@@ -34,7 +36,7 @@ The parser will ignore the first two lines of the file if they start with a bang
 
 ```
 #!/bin/bash
-./DFA $0 $@; exit 
+./fsim $0 $@; exit 
 ```
 
 Now the spec is runnable directly: 

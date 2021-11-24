@@ -1,2 +1,2 @@
 default:
-	swiftc -g DFA.swift
+	swiftc -g *.swift -o fsim

@@ -1,5 +1,7 @@
 #!/bin/bash
-./DFA $0 $@; exit 
+./fsim $0 $@; exit 
+
+type NFA
 
 initial i
   0 accept
