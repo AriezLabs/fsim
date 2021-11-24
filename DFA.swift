@@ -29,7 +29,7 @@ class DFA: FSM, CustomStringConvertible {
     func process(_ input: [String]) -> Bool {
         reset()
         for symbol in input {
-            if let targetId = currentState.transitions[symbol], let targetIndex = states.firstIndex(where: {$0.id == targetId}) {
+            if let targetId = currentState.getUniqueTransition(symbol: symbol), let targetIndex = states.firstIndex(where: {$0.id == targetId}) {
                 currentState = states[targetIndex]
                 Log.debug("\(symbol) -> \(currentState)")
             } else {
@@ -41,21 +41,3 @@ class DFA: FSM, CustomStringConvertible {
         return acceptingStates.contains(where: {$0.id == currentState.id})
     }
 }
-
-class State: Identifiable, CustomStringConvertible {
-    var id: String
-    var transitions = [String:String]()
-
-    init(id: String) {
-        self.id = id
-    }
-
-    var description: String {
-        return id
-    }
-
-    func addTransition(on symbol: String, to state: String) {
-        transitions[symbol] = state
-    }
-}
-

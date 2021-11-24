@@ -1,7 +1,7 @@
 #!/bin/bash
 ./fsim $0 $@; exit 
 
-type NFA
+type DFA
 
 initial i
   0 accept

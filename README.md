@@ -5,6 +5,22 @@ A finite automata simulator in Swift. Automata are specified in a simple DSL exp
 
 ## Specification syntax
 
+The syntax is a simple header followed by a sequence of state specifications. Generally, everything is space-separated. The machine's alphabet is inferred to be all of the symbols that appear in at least one state specification. It is not a requirement that all states have a transition defined for every symbol in the alphabet.
+
+See `machines/` for examples.
+
+
+### Header
+
+The header currently only serves to specify the type of the FSM (`DFA` or `NFA`), for example:
+
+```
+type NFA
+```
+
+
+### States
+
 A state is specified as follows:
 
 ```
@@ -17,14 +33,17 @@ stateId [ i ] [ a ]
 * Subsequent indented lines specify transitions from `symbol` to `targetId`.
 * Symbols may be sequences of any Unicode characters except spaces.
 
-A full DFA specification is simply any sequence of state specifications. The alphabet is inferred to be all of the symbols that appear in at least one state specification. It is not a requirement that all states have a transition defined for every symbol in the alphabet.
 
-For an example, see `odd_number_of_zeroes`.
+### NFA additions
+
+* NFAs may have more than one transition per state and symbol.
+* `epsilon` is a reserved symbol for NFAs, specifying epsilon-transitions.
+
 
 
 ## Running
 
-Words are passed with each symbol separated by a space.
+Words are passed as sequences of space-separated symbols.
 
 ```
 $ make
@@ -32,7 +51,7 @@ $ ./fsim odd_number_of_zeroes 0 0 1 1 1 0
 accept
 ```
 
-The parser will ignore the first two lines of the file if they start with a bang. Prepend the following header to your spec:
+For convenience, the parser will ignore the first two lines of the specification file if they start with a bang. Prepend the following header to your spec:
 
 ```
 #!/bin/bash

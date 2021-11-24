@@ -1,0 +1,36 @@
+#!/bin/bash
+./fsim $0 $@; exit 
+
+type NFA
+
+# Simulate two DFAs m1, m2 in parallel via an epsilon-transition to both of their initial states
+start i
+  epsilon m1_initial
+  epsilon m2_initial
+
+
+# m1 accepts an odd number of zeroes
+m1_initial
+  0 m1_accept
+  1 m1_initial
+
+m1_accept a
+  0 m1_initial
+  1 m1_accept
+
+
+# m2 accepts 2,5,8,11,14,... zeroes
+# this NFA, then, accepts 1,2,3,5,7,8,9,11,... zeroes
+m2_initial
+  0 m2_intermediate
+  1 m2_initial
+
+m2_intermediate
+  0 m2_accept
+  1 m2_intermediate
+
+m2_accept a
+  0 m2_initial
+  1 m2_accept
+
+

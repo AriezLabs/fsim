@@ -1,2 +1,2 @@
 default:
-	swiftc -g *.swift -o fsim
+	swiftc -g *.swift -o machines/fsim
